@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html ng-app="myApp" lang="en"> 
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="language" content="en" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
+	<script type="text/javascript" src="app.js"></script>
+    <style>
+        .form-group.required .control-label:after { 
+           content:"*";
+           color:red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12" ng-controller="PizzaFormController">
+                <h1>Welcome to the Pizza Palace</h1>
+                <form novalidate class="col-xs-6" name="pizzaForm" ng-submit="submit()" ng-hide="order.complete">
+                    <div class="form-group required">
+                        <h2>Your Details</h2>
+                        <label for="firstName" class="control-label">First Name</label>
+                        <input type="text" name="firstName" class="form-control input-sm" ng-model="order.customer.firstName" required />
+                        <div class="alert alert-danger" ng-show="( formSubmitted || pizzaForm.firstName.$dirty ) && pizzaForm.firstName.$invalid">
+                            <small ng-show="pizzaForm.firstName.$error.required">
+                                Please enter your first name.
+                            </small>
+                        </div>
+                        <label for="lastName" class="control-label">Last Name</label>
+                        <input type="text" name="lastName" class="form-control input-sm" ng-model="order.customer.lastName" required />
+                        <div class="alert alert-danger" ng-show="( formSubmitted || pizzaForm.lastName.$dirty ) && pizzaForm.lastName.$invalid">
+                            <small ng-show="pizzaForm.lastName.$error.required">
+                                Please enter your last name.
+                            </small>
+                        </div>
+                    </div>
+                    <h2>Build Your Own Pizza</h2>
+                    <p>Please select from the options below:</p>
+                    <div class="form-group required">
+                        <h3 class="control-label">Size</h3>
+                        <div class="radio" ng-repeat="pizzaSize in pizzaSizes">
+                            <label>
+                                <input type="radio" name="size" class="input-md" required ng-model="order.pizza.size" ng-change="updateOrderTotal()" value="{{ pizzaSize.val }}" /> {{ pizzaSize.name }} (&pound;{{ pizzaSize.price }})
+                            </label>
+                        </div>
+                        <div class="alert alert-danger" ng-show="( formSubmitted || pizzaForm.size.$dirty ) && pizzaForm.size.$invalid">
+                            <small ng-show="pizzaForm.size.$error.required">
+                                Please pick which size pizza you would like.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group required">
+                        <h3 class="control-label">Base</h3>
+                        <select name="base" ng-model="order.pizza.base" ng-options="pizzaBase.val as pizzaBase.name + ' +(&pound;' + pizzaBase.price + ')' for pizzaBase in pizzaBases" ng-change="updateOrderTotal()" required>
+                             <option value="">Please select a base</option>
+                        </select>
+                        <div class="alert alert-danger" ng-show="( formSubmitted || pizzaForm.base.$dirty ) && pizzaForm.base.$invalid">
+                            <small ng-show="pizzaForm.base.$error.required">
+                                Please select which pizza base you would like.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <h3>Toppings</h3>
+                        <div class="checkbox" ng-repeat="pizzaTopping in pizzaToppings">
+                            <label class="control-label">
+                                <input type="checkbox" name="topping" ng-click="updateToppings( pizzaTopping.val )" value="{{ pizzaTopping.val }}" /> {{ pizzaTopping.name }} ({{ pizzaTopping.price | currency : "&pound;" }})
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group required">
+                        <h3 class="control-label">Quantity</h3>
+                        <input type="text" name="quantity" ng-model="order.pizza.quantity" ng-pattern="/^[1-9]{1}[0-9]*$/" ng-change="updateOrderTotal()" required />
+                        <div class="alert alert-danger" ng-show="( formSubmitted || pizzaForm.quantity.$dirty ) && pizzaForm.quantity.$invalid">
+                            <small ng-show="pizzaForm.quantity.$error.required">
+                                Please enter how many pizzas you would like.
+                            </small>
+                            <small ng-show="pizzaForm.quantity.$error.pattern">
+                                Please enter a valid number of pizzas you would like.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <h3>Order Total: {{ order.total | currency : "&pound;" }}</h3>
+                    
+                    <div class="form-group">
+                        <input type="submit" value="Let's Cook!" />
+                    </div>
+                </form>
+                
+                <div ng-if="order.complete">
+                    <h2>Order Complete</h2>
+                    <p>Thank you {{ order.customer.firstName }} {{ order.customer.lastName }} for your order. Your <ng-pluralize count="order.pizza.quantity" when="{'1': 'pizza is', 'other': 'pizzas are'}"></ng-pluralize> in the oven!</p>
+                    <h3>You ordered:</h3>
+                    <p>{{ order.pizza.quantity }} x {{ lookUpOption( pizzaSizes, order.pizza.size, 'name' ) }} {{ lookUpOption( pizzaBases, order.pizza.base, 'name' ) }} <ng-pluralize count="order.pizza.quantity" when="{'1': 'Pizza', 'other': 'Pizzas'}"></ng-pluralize> with 
+                        <span ng-if="order.pizza.toppings.length === 0"> no extra toppings.</span>
+                        <span ng-if="order.pizza.toppings.length > 0" ng-repeat="pizzaTopping in order.pizza.toppings">{{ $index !== 0 ? ", " : ""}}{{ $index === order.pizza.toppings.length - 1 ? "and " : ""}}{{ lookUpOption( pizzaToppings, pizzaTopping, 'name' ) }}</span>.
+                    </p>
+                    <h3>Enjoy! Come again soon.</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

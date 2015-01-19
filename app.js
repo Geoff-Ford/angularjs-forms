@@ -52,7 +52,6 @@ app.controller('PizzaFormController', ['$scope', function($scope) {
      * 
      * @method updateToppings
      * @param {String} pizzaTopping The selected pizza topping.
-     * @return {Boolean} Returns true on success
      */
     $scope.updateToppings = function ( pizzaTopping ) {
         var addTopping = true;
@@ -98,11 +97,10 @@ app.controller('PizzaFormController', ['$scope', function($scope) {
     $scope.submit = function () {
         $scope.formSubmitted = true;
         
-        $scope.ordered = $scope.order
         if( $scope.pizzaForm.$valid ) {
             $scope.order.complete = true;
         }
-    }
+    };
     
     /*
      * Helper function to retrieve an option property from a provided option array.
